@@ -1,4 +1,30 @@
 <!DOCTYPE html>
+<!--
+  Our main concern with this project is code accessability. One should be able
+  to easily access all the source code, and be able to modify it at will to
+  see how it behaves.
+
+  To this end, I'm not using any build tools or separate vue files. Just one
+  file with the html, templates, css, and javascript.
+
+  First is the CSS, pretty straightfoward.
+
+  Next comes the layout for the app.
+
+  Then the templates for the vue components. We have two: a btn and an lcd.
+
+  Then finally the javascript with all of our logic.
+
+  I tried to follow closely the behavior of the OS X calculator. Som logic is
+  a lot simpler if we use partially applied functions instead of trying to
+  special case all the computations. Especially around the = operator. For
+  This reason there are some functional elements to the code.
+
+  Some things are different, but also outside of the scope of the assignment
+  spec, and shipped is better than perfect.  Some rough edges are when we get
+  a value that floating point numbers can't handle (0.1+0.2=), or when we
+  repeatedly apply non-commutative operations with no second argument (3-====)
+-->
 <html>
 <head>
   <title>Calc</title>
