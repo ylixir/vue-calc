@@ -58,8 +58,8 @@
     <lcd :v="''===current?previous:current"></lcd>
     <div><btn
       v="AC" class="instant-op" @clicked="clear"></btn><btn
-      v="⁺/⁃" class="instant-op squish" @clicked="inverse"></btn><btn
-      v="%" class="instant-op" @clicked="percent"></btn><btn
+      v="⁺/⁃" class="instant-op squish" @clicked="doOp"></btn><btn
+      v="%" class="instant-op" @clicked="doOp"></btn><btn
       v="÷" class="arithmetic-op" @clicked="pushOp">
     </btn></div>
     <div><btn
@@ -103,6 +103,8 @@
       "×": a=>b=>(parseFloat(a)*parseFloat(b)).toString(),
       "−": a=>b=>(parseFloat(a)-parseFloat(b)).toString(),
       "÷": a=>b=>(parseFloat(a)/parseFloat(b)).toString(),
+      "⁺/⁃": a=>(-parseFloat(a)).toString(),
+      "%": a=>(parseFloat(a)/100).toString(),
       "=": a=>b=>b,
     }
 
@@ -144,18 +146,11 @@
           this.operator = null
           this.current = "0"
         },
-        percent() {
+        doOp(v) {
           if ("" === this.current) {
-            this.previous = (parseFloat(this.previous)/100).toString()
+            this.previous = opTable[v](this.previous)
           } else {
-            this.current = (parseFloat(this.current)/100).toString()
-          }
-        },
-        inverse() {
-          if ("" === this.current) {
-            this.previous = (-parseFloat(this.previous)).toString()
-          } else {
-            this.current = (-parseFloat(this.current)).toString()
+            this.current = opTable[v](this.current)
           }
         },
         pushDigit(v) {
