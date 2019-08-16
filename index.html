@@ -42,6 +42,7 @@
       text-align: right;
       font-size: calc(5/5*var(--button-unit));
       padding: 0 5px;
+      overflow: hidden;
     }
     .squish {
       letter-spacing: -1px;
@@ -144,10 +145,18 @@
           this.current = "0"
         },
         percent() {
-          this.current = (parseFloat(this.current)/100).toString()
+          if ("" === this.current) {
+            this.previous = (parseFloat(this.previous)/100).toString()
+          } else {
+            this.current = (parseFloat(this.current)/100).toString()
+          }
         },
         inverse() {
-          this.current = (-parseFloat(this.current)).toString()
+          if ("" === this.current) {
+            this.previous = (-parseFloat(this.previous)).toString()
+          } else {
+            this.current = (-parseFloat(this.current)).toString()
+          }
         },
         pushDigit(v) {
           const hasDot = -1 !== this.current.indexOf('.')
