@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calc</title>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/vue"></script>
+  <link href="https://fonts.googleapis.com/css?family=Work+Sans&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --button-unit: 32px;
+      --button-width: calc(1.25*var(--button-unit));
+      --font: 'Work Sans', sans-serif;
+    }
+    .arithmetic-op {
+      background-color: rgb(251, 158, 59)
+    }
+    .btn {
+      border: 1px solid rgb(100,100,100);
+      box-sizing: border-box;
+      color: white;
+      cursor: pointer;
+      display: inline-block;
+      font-family: var(--font);
+      font-size: calc(3/5*var(--button-unit));
+      height: var(--button-unit);
+      line-height: var(--button-unit);
+      text-align: center;
+      width: var(--button-width);
+    }
+    .digit {
+      background-color: rgb(165, 165, 165)
+    }
+    .instant-op {
+      background-color: rgb(126, 126, 126)
+    }
+    .lcd {
+      background-color: rgb(63, 63, 63);
+      box-sizing: border-box;
+      color: white;
+      font-family: var(--font);
+      width: calc(4*var(--button-width));
+      text-align: right;
+      font-size: calc(5/5*var(--button-unit));
+      padding: 0 5px;
+    }
+    .squish {
+      letter-spacing: -1px;
+    }
+    .wide {
+      width: calc(2*var(--button-width));
+      padding-right: var(--button-width);
+    }
+  </style>
+</head>
+<body>
+  <div id="calc">
+    <lcd :v="''===current?previous:current"></lcd>
+    <div><btn
+      v="AC" class="instant-op" @clicked="clear"></btn><btn
+      v="⁺/⁃" class="instant-op squish" @clicked="inverse"></btn><btn
+      v="%" class="instant-op" @clicked="percent"></btn><btn
+      v="÷" class="arithmetic-op" @clicked="pushOp">
+    </btn></div>
+    <div><btn
+      v="7" class="digit" @clicked="pushDigit"></btn><btn
+      v="8" class="digit" @clicked="pushDigit"></btn><btn
+      v="9" class="digit" @clicked="pushDigit"></btn><btn
+      v="×" class="arithmetic-op" @clicked="pushOp">
+    </btn></div>
+    <div><btn
+      v="4" class="digit" @clicked="pushDigit"></btn><btn
+      v="5" class="digit" @clicked="pushDigit"></btn><btn
+      v="6" class="digit" @clicked="pushDigit"></btn><btn
+      v="−" class="arithmetic-op" @clicked="pushOp">
+    </btn></div>
+    <div><btn
+      v="1" class="digit" @clicked="pushDigit"></btn><btn
+      v="2" class="digit" @clicked="pushDigit"></btn><btn
+      v="3" class="digit" @clicked="pushDigit"></btn><btn
+      v="+" class="arithmetic-op" @clicked="pushOp">
+    </btn></div>
+    <div><btn
+      v="0" class="wide digit" @clicked="pushDigit"></btn><btn
+      v="." class="digit" @clicked="pushDigit"></btn><btn
+      v="=" class="arithmetic-op" @clicked="equals">
+    </btn> </div>
+  </div>
+
+  <!-- templates -->
+  <script type="text/x-template" id="btn">
+    <span @click="clicked" class="btn">{{v}}</span>
+  </script>
+
+  <script type="text/x-template" id="lcd">
+    <div class="lcd">{{v}}</div>
+  </script>
+
+
+  <script>
+    const opTable = {
+      "+": a=>b=>(parseFloat(a)+parseFloat(b)).toString(),
+      "×": a=>b=>(parseFloat(a)*parseFloat(b)).toString(),
+      "−": a=>b=>(parseFloat(a)-parseFloat(b)).toString(),
+      "÷": a=>b=>(parseFloat(a)/parseFloat(b)).toString(),
+      "=": a=>b=>b,
+    }
+
+    Vue.component('btn', {
+      template: '#btn',
+      props: {
+        v: {
+          type: String,
+          required: true,
+        },
+      },
+      methods: {
+        clicked() {
+          this.$emit('clicked',this.v)
+        },
+      },
+    })
+
+    Vue.component('lcd', {
+      template: '#lcd',
+      props: {
+        v: {
+          type: String,
+          required: true,
+        },
+      },
+    })
+
+    const app = new Vue({
+      el: '#calc',
+      data: {
+        previous: null,
+        operator: null,
+        current: "0",
+      },
+      methods: {
+        clear() {
+          previous: null,
+          this.operator = null
+          this.current = "0"
+        },
+        percent() {
+          this.current = (parseFloat(this.current)/100).toString()
+        },
+        inverse() {
+          this.current = (-parseFloat(this.current)).toString()
+        },
+        pushDigit(v) {
+          const hasDot = -1 !== this.current.indexOf('.')
+          if ('0' === this.current && '0' === v) {
+            this.current = '0'
+          } else if (!hasDot && '.' === v) {
+            this.current += '.'
+          } else if (hasDot && '.' === v) {
+            this.current = this.current
+          } else if (!hasDot) {
+            this.current = parseFloat(this.current+v).toString()
+          } else {
+            this.current = this.current+v
+          }
+        },
+        pushOp(v) {
+          if (!this.operator) {
+            this.operator = opTable[v](this.current)
+            this.previous = this.current
+            this.current = ""
+          } else if ("" === this.current) {
+            this.operator = opTable[v](this.previous)
+          } else {
+            this.previous = this.operator(this.current)
+            this.operator = opTable[v](this.previous)
+            this.current = ""
+          }
+        },
+        equals() {
+          if ("" === this.current) {
+            this.previous = this.operator(this.previous)
+          } else if (this.operator) {
+            this.previous = this.operator(this.current)
+            this.operator = opTable["="](this.previous)
+            this.current = ""
+          }
+        },
+      }
+    })
+  </script>
+</body>
+</html>
